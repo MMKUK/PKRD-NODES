@@ -26,7 +26,7 @@ jobs:
 
       - name: 🤖 Run Verifier Script
         run: ./PKRD-NODES
-  run: ||
+  run: |
           python verify_nodes.py
 
       - name: 📤 Commit Approved Nodes
