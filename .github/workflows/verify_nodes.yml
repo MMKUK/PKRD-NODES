@@ -24,10 +24,8 @@ run: python verify_nodes.py
           pip install eth_account eth_utils
 
       - name: 🤖 Run Verifier Script
-        working-directory: PKRD-NODES
-        run: |
-          mkdir -p ../approved ../rejected
-          python verify_nodes.pyy
+  working-directory: ${{ github.workspace }}
+  run: python verify_nodes.py
 
       - name: 📤 Commit Approved/Rejected Nodes
         run: |
