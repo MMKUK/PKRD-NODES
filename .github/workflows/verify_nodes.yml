@@ -25,8 +25,8 @@ jobs:
           pip install eth_account eth_utils
 
       - name: 🤖 Run Verifier Script
-  run: |
-    cd PKRD
+        working-directory: PKRD-NODES
+        run: |
           python verify_nodes.py
 
       - name: 📤 Commit Approved Nodes
