@@ -7,7 +7,8 @@ on:
 
 jobs:
   verify-nodes:
-    runs-on: ubuntu-latest
+    working-directory: PKRD-NODES
+run: python verify_nodes.py
 
     steps:
       - name: ⬇️ Checkout Repo
@@ -23,14 +24,15 @@ jobs:
           pip install eth_account eth_utils
 
       - name: 🤖 Run Verifier Script
+        working-directory: PKRD-NODES
         run: |
-          mkdir -p approved rejected
-          python3 verify_nodes.py
+          mkdir -p ../approved ../rejected
+          python verify_nodes.pyy
 
       - name: 📤 Commit Approved/Rejected Nodes
         run: |
           git config user.name "PKRD AI Bot"
           git config user.email "bot@pkr.digital"
-          git add approved/ rejected/
+          git add ../approved/ ../rejected/
           git commit -m "✅ Auto-process node requests" || echo "Nothing to commit"
           git push
