@@ -1,6 +1,6 @@
 {
   "wallet_address": "0xf56Ed1B537291a45dd4f393aa39EAc4d14738646",
-  "fingerprint": "cpu:m2_max|ram:96gb|os:macOS",
+  "fingerprint": "cpu:m2_max | ram:96gb | os:macOS",
   "signed_message": "0x94d5a9972361ba69daf588c49d46607652f4db849cad0a73d4164ba862f9a2f336f9bdeb475bc86cca19ca9bf9caa99d4cba3987ef874e1821fbda8c499a99b21c",
   "timestamp": 1743777947
 }
