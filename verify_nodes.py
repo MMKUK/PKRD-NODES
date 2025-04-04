@@ -1,14 +1,18 @@
-
-import os
-import json
 import time
-import shutil
 import hashlib
+import json
+import os
 from eth_account import Account
 from eth_account.messages import encode_defunct
 
 TRUST_THRESHOLD = 0.72
-TIMESTAMP_WINDOW = 10
+TIMESTAMP_WINDOW = 10  # seconds
+
+approved_folder = "approved"
+requests_folder = "node_requests"
+
+approved_nodes = {}
+penalized_nodes = {}
 
 def get_entropy_score(fingerprint: str) -> float:
     hash_val = hashlib.sha256(fingerprint.encode()).hexdigest()
@@ -21,60 +25,51 @@ def validate_signature(wallet_address: str, signed_data: str, message: str) -> b
         recovered_address = Account.recover_message(eth_message, signature=signed_data)
         return recovered_address.lower() == wallet_address.lower()
     except Exception as e:
-        print(f"[!] Signature validation failed for {wallet_address}: {e}")
+        print(f"[!] Signature validation failed: {e}")
         return False
 
-def approve_node(wallet_address, fingerprint, signed_data, message, timestamp, node_file_path):
+def should_approve_node(wallet_address, fingerprint, signed_data, message, request_timestamp):
     now = int(time.time())
-    delay = abs(now - timestamp)
+    delay = abs(now - request_timestamp)
 
+    if wallet_address in penalized_nodes:
+        return False
+    if wallet_address in approved_nodes:
+        return False
     if delay > TIMESTAMP_WINDOW:
-        print(f"❌ Skipping {wallet_address}: expired timestamp.")
-        return
-
+        return False
     if not validate_signature(wallet_address, signed_data, message):
-        print(f"❌ Skipping {wallet_address}: invalid signature.")
-        return
+        return False
 
     entropy_score = get_entropy_score(fingerprint)
     trust_score = (entropy_score * 0.9) + 0.1
-    print(f"🔍 {wallet_address} | Entropy: {entropy_score:.4f}, Trust: {trust_score:.4f}")
 
     if trust_score >= TRUST_THRESHOLD:
-        approved_data = {
-            "wallet_address": wallet_address,
+        approved_nodes[wallet_address] = {
+            "approved_time": now,
             "entropy": entropy_score,
-            "trust": trust_score,
-            "approved_time": now
+            "trust": trust_score
         }
-        approved_file = f"approved/{wallet_address.lower()}.json"
-        with open(approved_file, 'w') as f:
-            json.dump(approved_data, f, indent=2)
-        os.remove(node_file_path)
-        print(f"✅ Node approved: {wallet_address}")
-    else:
-        print(f"❌ Node rejected (low trust): {wallet_address}")
+        return True
+    return False
 
-def run_verifier():
-    message = "PKRD Node Join Request"
-    request_folder = "node_requests"
-    for filename in os.listdir(request_folder):
-        if filename.endswith(".json"):
-            file_path = os.path.join(request_folder, filename)
-            try:
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                approve_node(
-                    wallet_address=data["wallet_address"],
-                    fingerprint=data["fingerprint"],
-                    signed_data=data["signed_message"],
-                    message=message,
-                    timestamp=int(data["timestamp"]),
-                    node_file_path=file_path
-                )
-            except Exception as e:
-                print(f"[!] Failed to process {filename}: {e}")
+# 🚀 Begin processing all requests
+for filename in os.listdir(requests_folder):
+    path = os.path.join(requests_folder, filename)
+    with open(path, "r") as f:
+        data = json.load(f)
+        wallet = data["wallet_address"]
+        fingerprint = data["fingerprint"]
+        signature = data["signed_message"]
+        timestamp = data["timestamp"]
+        message = "PKRD Node Join Request"
 
-if __name__ == "__main__":
-    run_verifier()
+        print(f"🧪 Processing request: {wallet}")
+        approved = should_approve_node(wallet, fingerprint, signature, message, timestamp)
 
+        if approved:
+            print("✅ Approved:", wallet)
+            with open(os.path.join(approved_folder, filename), "w") as out:
+                json.dump(data, out, indent=2)
+        else:
+            print("❌ Rejected:", wallet)
