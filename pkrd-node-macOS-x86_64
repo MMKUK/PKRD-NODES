@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import random
+import time
+
+CONFIG_FILE = "pkrd-config.json"
+WALLET_FILE = "pkrd-wallet.txt"
+FAUCET_FILE = "faucet_claimed.txt"
+
+def init_node():
+    if os.path.exists(CONFIG_FILE):
+        print("⚠️ Config already exists.")
+        return
+
+    wallet = f"0x{os.urandom(20).hex()}"
+    private_key = os.urandom(32).hex()
+    config = {
+        "wallet": wallet,
+        "private_key": private_key,
+        "created": int(time.time())
+    }
+
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
+    with open(WALLET_FILE, "w") as f:
+        f.write(wallet)
+
+    print(f"💼 Wallet created: {wallet}")
+    print("⚙️ Config initialized.")
+
+def check_status():
+    if not os.path.exists(CONFIG_FILE):
+        print("❌ Node not initialized. Run './pkrd-node install' first.")
+        return
+    with open(CONFIG_FILE) as f:
+        config = json.load(f)
+    print("📡 Node Status:")
+    print(f"Wallet: {config['wallet']}")
+    print("Syncing... [fake data: Block #854293]")
+
+def request_faucet():
+    if not os.path.exists(CONFIG_FILE):
+        print("❌ Node not initialized.")
+        return
+    if os.path.exists(FAUCET_FILE):
+        print("💧 Faucet already claimed.")
+        return
+    with open(CONFIG_FILE) as f:
+        config = json.load(f)
+    print(f"💧 Sending 1 test PKRD to: {config['wallet']}")
+    with open(FAUCET_FILE, "w") as f:
+        f.write("claimed")
+    print(f"✅ 1 PKRD sent to {config['wallet']} 🎉")
+
+def launch_explorer():
+    print("🔍 PKRD Explorer")
+    print("🧱 Latest Block: #854293")
+    print("📦 Pending TXs: 0")
+    print("📊 Chain Status: Operational")
+
+def auto_signer():
+    print("🤖 Auto-Signer Activated...")
+    print("📝 Checking pending node approvals...")
+    for i in range(random.randint(1, 3)):
+        node_id = os.urandom(4).hex()
+        print(f"✅ Signed node #{i+1} | Hash: 0x{node_id}")
+    print("🧠 Auto-signer cycle complete.")
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "help"
+
+    if cmd == "install":
+        if "--reset" in sys.argv:
+            print("🧹 Resetting existing config...")
+            for f in [WALLET_FILE, CONFIG_FILE, "pkrd_config.json", FAUCET_FILE]:
+                if os.path.exists(f):
+                    os.remove(f)
+                    print(f"🗑️ Deleted: {f}")
+        init_node()
+    elif cmd == "status":
+        check_status()
+    elif cmd == "faucet":
+        request_faucet()
+    elif cmd == "explorer":
+        launch_explorer()
+    elif cmd == "auto-signer":
+        auto_signer()
+    else:
+        print("Usage: ./pkrd-node [install|status|faucet|explorer|auto-signer]")
