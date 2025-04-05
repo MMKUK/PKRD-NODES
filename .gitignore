@@ -4,3 +4,8 @@ pkrd-*
 PKRD-NODES/
 __pycache__/
 *.log
+# Ignore all wallet/private config files
+pkrd-config.json
+pkrd_config.json
+pkrd-wallet.txt
+faucet_claimed.txt
