@@ -1,14 +1,16 @@
-# 🧠 PKRD Genesis Chain – Permissionless Node Network
+# 🚀 PKRD Node (Permissionless)
 
-Welcome to the future of blockchain. PKRD is a fully decentralized, AI-enhanced chain that anyone can run — no approval needed.
+This node can be run by **any user** without approval. Once started, it:
 
----
+- Creates its wallet
+- Automatically syncs and connects to the PKRD Genesis Chain
+- Includes faucet + explorer + signer
 
-## 🚀 How to Start a PKRD Node (in 10 seconds)
+### 🔧 Usage
 
 ```bash
-git clone https://github.com/MMKUK/PKRD-NODES.git
-cd PKRD-NODES
 chmod +x pkrd-node
-./pkrd-node init
-./pkrd-node start
+./pkrd-node install     # First-time setup
+./pkrd-node faucet      # Claim test PKRD
+./pkrd-node explorer    # Show local block info
+./pkrd-node auto-signer # Optional auto node validation simulation
