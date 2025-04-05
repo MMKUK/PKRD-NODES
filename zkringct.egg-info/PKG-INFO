@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: zkringct
+Version: 0.1
+Summary: Simulated zkRingCT module for PKRD Chain
+Author: Mohsin
+Author-email: dev@pkr.digital
+Dynamic: author
+Dynamic: author-email
+Dynamic: summary
